@@ -26,6 +26,9 @@ before(async () => {
   await db.exec(await readFile('supabase/migrations/01_rls_policies.sql','utf8'));
   await db.exec(await readFile('supabase/migrations/02_seed_data.sql','utf8'));
   await db.exec(await readFile('supabase/migrations/03_secure_commerce.sql','utf8'));
+  await db.exec(await readFile('supabase/migrations/05_order_fulfillment.sql','utf8'));
+  await db.exec(await readFile('supabase/migrations/06_privacy_and_limits.sql','utf8'));
+  await db.exec(await readFile('supabase/migrations/07_admin_operations.sql','utf8'));
   await db.exec(`UPDATE public.inventory_lots SET expiration_date = CURRENT_DATE + 365;
     INSERT INTO auth.users(id,email) VALUES('${user}','one@example.com'),('${other}','two@example.com');
     INSERT INTO public.site_content(key,content) VALUES('privacidad','{"version":"test-v1","body":"Aviso de prueba local"}');
@@ -160,4 +163,115 @@ test('a product withdrawn after reservation holds its payment for review', async
   await db.query("UPDATE public.products SET commercial_status='borrador',regulatory_status='rechazado' WHERE id=$1",[product]);
   assert.equal(await pay(order),'review_required');
   assert.deepEqual(await stock(),{ stock_available:45,stock_reserved:1 });
+});
+test('admins fulfil paid orders in sequence, with tracking and audit; clients and skips are rejected', async () => {
+  const order = await create();
+  await db.query("UPDATE public.profiles SET role='admin' WHERE id=$1",[user]);
+  const advance = async (status: string, actor = user, carrier: string | null = null, tracking: string | null = null) => {
+    await db.exec('SAVEPOINT step');
+    try { await db.query('SELECT public.advance_order($1,$2,$3,$4,$5)',[order.id,actor,status,carrier,tracking]); await db.exec('RELEASE SAVEPOINT step'); }
+    catch (error) { await db.exec('ROLLBACK TO SAVEPOINT step'); throw error; }
+  };
+  await assert.rejects(advance('preparando'),/INVALID_TRANSITION/);
+  await pay(order);
+  await assert.rejects(advance('preparando',other),/FORBIDDEN/);
+  await assert.rejects(advance('enviado'),/INVALID_TRANSITION/);
+  await advance('preparando');
+  await assert.rejects(advance('enviado'),/TRACKING_REQUIRED/);
+  await advance('enviado',user,'DHL','1234567890');
+  await advance('entregado');
+  assert.equal((await db.query<{ status: string }>('SELECT status FROM public.orders WHERE id=$1',[order.id])).rows[0].status,'entregado');
+  assert.deepEqual((await db.query('SELECT carrier,tracking_number,status FROM public.shipments WHERE order_id=$1',[order.id])).rows,[{ carrier:'DHL',tracking_number:'1234567890',status:'entregado' }]);
+  assert.equal((await db.query("SELECT id FROM public.admin_audit_logs WHERE action='advance_order'")).rows.length,3);
+});
+test('orders held for payment review cannot be fulfilled', async () => {
+  const order = await create();
+  await pay(order); await pay(order,'payment-2');
+  await db.query("UPDATE public.profiles SET role='admin' WHERE id=$1",[user]);
+  await assert.rejects(db.query("SELECT public.advance_order($1,$2,'preparando',NULL,NULL)",[order.id,user]),/PAYMENT_REVIEW/);
+});
+test('rate limit allows the configured hits per window, then blocks, then resets', async () => {
+  const hit = async () => (await db.query<{ ok: boolean }>("SELECT public.hit_rate_limit('k1',3,INTERVAL '1 hour') ok")).rows[0].ok;
+  assert.deepEqual([await hit(),await hit(),await hit(),await hit()],[true,true,true,false]);
+  await db.query("UPDATE public.rate_limits SET window_start = NOW() - INTERVAL '2 hours' WHERE key='k1'");
+  assert.equal(await hit(),true);
+  assert.equal((await db.query<{ ok: boolean }>("SELECT public.hit_rate_limit('k2',1,INTERVAL '1 hour') ok")).rows[0].ok,true);
+});
+test('consent history keeps every change and the latest row is the current state', async () => {
+  await db.query("SELECT public.set_consent($1,'marketing',TRUE,'v1')",[user]);
+  await db.query("SELECT public.set_consent($1,'marketing',FALSE,'v1')",[user]);
+  const rows = (await db.query<{ is_granted: boolean; revoked_at: string | null }>("SELECT is_granted,revoked_at FROM public.privacy_consents WHERE user_id=$1 ORDER BY granted_at,id",[user])).rows;
+  assert.equal(rows.length,2);
+  assert.equal(rows[0].is_granted,true);
+  assert.equal(rows[1].is_granted,false);
+  assert.ok(rows[1].revoked_at);
+  await assert.rejects(db.query("SELECT public.set_consent($1,'datos_sensibles',TRUE,'v1')",[user]),/INVALID_CONSENT/);
+});
+test('ARCO requests are private to staff and resolving one needs notes and leaves an audit trail', async () => {
+  await db.query("INSERT INTO public.arco_requests(requester_name,requester_email,request_type,details) VALUES('Ana','ana@example.com','acceso','Quiero conocer mis datos')");
+  const id = (await db.query<{ id: string }>('SELECT id FROM public.arco_requests')).rows[0].id;
+  await db.query("UPDATE public.profiles SET role='admin' WHERE id=$1",[user]);
+  await db.exec('SAVEPOINT a');
+  await assert.rejects(db.query("SELECT public.update_arco_request($1,$2,'resuelta','')",[id,user]),/NOTES_REQUIRED/);
+  await db.exec('ROLLBACK TO SAVEPOINT a');
+  await db.exec('SAVEPOINT b');
+  await assert.rejects(db.query("SELECT public.update_arco_request($1,$2,'resuelta','Entregado el reporte')",[id,other]),/FORBIDDEN/);
+  await db.exec('ROLLBACK TO SAVEPOINT b');
+  await db.query("SELECT public.update_arco_request($1,$2,'resuelta','Se envió la información al titular')",[id,user]);
+  assert.equal((await db.query<{ status: string }>('SELECT status FROM public.arco_requests WHERE id=$1',[id])).rows[0].status,'resuelta');
+  assert.equal((await db.query("SELECT id FROM public.admin_audit_logs WHERE action='update_arco_request'")).rows.length,1);
+  assert.equal((await db.query<{ a: boolean; b: boolean }>("SELECT has_table_privilege('anon','public.arco_requests','SELECT') a,has_table_privilege('authenticated','public.arco_requests','SELECT') b")).rows[0].a,false);
+});
+async function rejects(sql: string, params: unknown[], pattern: RegExp) {
+  await db.exec('SAVEPOINT guard');
+  try { await assert.rejects(db.query(sql,params),pattern); } finally { await db.exec('ROLLBACK TO SAVEPOINT guard'); }
+}
+const asAdmin = () => db.query("UPDATE public.profiles SET role='admin' WHERE id=$1",[user]);
+
+test('receiving stock requires lot and future expiry for consumables, and keeps stock, lots and movements consistent', async () => {
+  await asAdmin();
+  const before = await stock();
+  await rejects("SELECT public.receive_stock($1,$2,NULL,NULL,5,'x')",[user,variant],/LOT_REQUIRED/);
+  await rejects("SELECT public.receive_stock($1,$2,'L1',CURRENT_DATE,5,'x')",[user,variant],/LOT_REQUIRED/);
+  await rejects("SELECT public.receive_stock($1,$2,'L1',CURRENT_DATE+90,5,'x')",[other,variant],/FORBIDDEN/);
+  await db.query("SELECT public.receive_stock($1,$2,'NEW-LOT',CURRENT_DATE+90,10,'compra')",[user,variant]);
+  await db.query("SELECT public.receive_stock($1,$2,'NEW-LOT',CURRENT_DATE+90,5,'compra')",[user,variant]);
+  assert.equal((await stock()).stock_available,before.stock_available + 15);
+  assert.equal((await db.query<{ q: number }>("SELECT quantity q FROM public.inventory_lots WHERE lot_number='NEW-LOT'")).rows[0].q,15);
+  assert.equal((await db.query("SELECT id FROM public.inventory_movements WHERE movement_type='entrada'")).rows.length,2);
+});
+test('stock adjustments need a reason, cannot go below reservations, and are audited', async () => {
+  await asAdmin();
+  await create(randomUUID(),3);
+  const lot = (await db.query<{ id: string }>('SELECT id FROM public.inventory_lots WHERE variant_id=$1 AND reserved_quantity>0',[variant])).rows[0].id;
+  await rejects("SELECT public.adjust_stock($1,$2,$3,10,'')",[user,variant,lot],/NOTES_REQUIRED/);
+  await rejects("SELECT public.adjust_stock($1,$2,$3,2,'conteo fisico')",[user,variant,lot],/BELOW_RESERVED/);
+  await rejects("SELECT public.adjust_stock($1,$2,NULL,10,'conteo fisico')",[user,variant],/LOT_REQUIRED/);
+  await db.query("SELECT public.adjust_stock($1,$2,$3,50,'conteo fisico')",[user,variant,lot]);
+  assert.equal((await db.query("SELECT id FROM public.admin_audit_logs WHERE action='adjust_stock'")).rows.length,1);
+});
+test('catalog operations reject prohibited categories, invalid coupons and unchanged legal versions', async () => {
+  await asAdmin();
+  await rejects("SELECT public.upsert_category($1,NULL,'SARMs','sarms','x',TRUE)",[user],/PROHIBITED_CATEGORY|check_prohibited/);
+  await rejects("SELECT public.upsert_category($1,NULL,'Vitaminas','vit-hormona-de-crecimiento','x',TRUE)",[user],/PROHIBITED_CATEGORY/);
+  await db.query("SELECT public.upsert_category($1,NULL,'Vitaminas','vitaminas','Bienestar',TRUE)",[user]);
+  await rejects("SELECT public.upsert_coupon($1,NULL,'BIG','percentage',150,0,NULL,NULL,TRUE)",[user],/INVALID_VALUE/);
+  await rejects("SELECT public.upsert_coupon($1,NULL,'ab','fixed',10,0,NULL,NULL,TRUE)",[user],/INVALID_CODE/);
+  await db.query("SELECT public.upsert_coupon($1,NULL,'ok-10','fixed',10,0,5,NULL,TRUE)",[user]);
+  assert.equal((await db.query("SELECT code FROM public.coupons WHERE code='OK-10'")).rows.length,1);
+  await rejects("SELECT public.save_site_content($1,'privacidad','test-v1','Otro texto')",[user],/VERSION_REQUIRED/);
+  await rejects("SELECT public.save_site_content($1,'secreto','v1','x')",[user],/INVALID_KEY/);
+  await db.query("SELECT public.save_site_content($1,'faq','2026-09-21','Preguntas frecuentes')",[user]);
+  await db.query("SELECT public.save_site_content($1,'privacidad','test-v2','Otro texto')",[user]);
+  assert.equal((await db.query<{ v: string }>("SELECT content->>'version' v FROM public.site_content WHERE key='privacidad'")).rows[0].v,'test-v2');
+});
+test('the dashboard summarizes sales, statuses and stock alerts', async () => {
+  const order = await create(); await pay(order);
+  await db.query('UPDATE public.product_variants SET stock_available=1,stock_reserved=0 WHERE id=$1',[variant]);
+  const summary = (await db.query<{ d: { sales_30d: number; orders_30d: number; by_status: Record<string, number>; low_stock: unknown[]; top_products: unknown[] } }>('SELECT public.admin_dashboard() d')).rows[0].d;
+  assert.equal(Number(summary.sales_30d),order.total);
+  assert.equal(Number(summary.orders_30d),1);
+  assert.equal(summary.by_status.pagado,1);
+  assert.ok(summary.low_stock.length >= 1);
+  assert.equal(summary.top_products.length,1);
 });

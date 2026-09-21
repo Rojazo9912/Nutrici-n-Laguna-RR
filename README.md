@@ -31,6 +31,20 @@ Si la base ya tiene las tablas iniciales, aplica **únicamente** `supabase/migra
 
 Alternativamente, agrega la conexión administrativa de ese proyecto como `DATABASE_URL` en `.env.local` y ejecuta `npm run db:migrate`. El comando verifica el proyecto de destino, valida el certificado TLS, aplica los cambios en una transacción y guarda su checksum. No imprime la cadena de conexión. Admite conexión directa de Supabase o su pooler con usuario `postgres.<project-ref>`; usa preferentemente el pooler de sesión si tu red no admite IPv6.
 
+Después aplica **una vez** `supabase/migrations/04_admin_products.sql` (editor SQL): crea la función `create_product` y el bucket público `products` para imágenes. Los productos nuevos siempre nacen como borrador con revisión regulatoria pendiente, y solo el rol `admin` puede crearlos.
+
+Aplica también **una vez** `supabase/migrations/05_order_fulfillment.sql`: habilita en `/admin/pedidos` el flujo `pagado → preparando → enviado → entregado` (solo `admin`). Para marcar un pedido como enviado se exige paquetería y guía, que el cliente ve en su pedido. Cada cambio queda en la auditoría. Los pedidos con pago pendiente de conciliación no pueden avanzar; cancelaciones y reembolsos siguen siendo manuales.
+
+Aplica **una vez** `supabase/migrations/06_privacy_and_limits.sql`. Agrega tres cosas:
+
+- **Limitación de tasa** (`rate_limits`, `hit_rate_limit`): cotización (60 por 10 min por IP), creación de pedidos (20 por hora por IP, además del límite de 10 por hora por navegador que ya tiene la base), solicitudes ARCO (5 por hora) y cambios de consentimiento (20 por hora por usuario). Las claves se guardan como hash. Si el contador no está disponible (por ejemplo, antes de aplicar la migración), **se permite la solicitud y se registra el fallo**, para no bloquear la tienda. Detrás de un proxy se usa `x-real-ip` o la última entrada de `x-forwarded-for`; verifica que tu hosting la establezca. **El inicio de sesión no pasa por este límite**: lo gestiona Supabase Auth directamente desde el navegador. Configura sus límites en Authentication → Rate Limits (el PRD propone 5 intentos por 15 minutos).
+- **Derechos ARCO**: formulario público en `/derechos-arco/solicitud` y bandeja `/admin/arco` (solo `admin`) con estados recibida, en proceso, resuelta y rechazada, notas obligatorias al cerrar y auditoría. No envía acuse por correo ni calcula plazos legales: el seguimiento del plazo corresponde al responsable.
+- **Consentimientos**: en `/cuenta` el cliente puede otorgar o revocar las comunicaciones comerciales. Cada cambio agrega una fila con versión del aviso y fecha; el estado vigente es la más reciente. Todavía no existe envío de newsletter que consulte este consentimiento.
+
+Aplica también **una vez** `supabase/migrations/07_admin_operations.sql` (requiere la 06): inventario y lotes, variantes, marcas, categorías, cupones, contenido del sitio, tablero de indicadores y favoritos. Habilita el panel `/admin` completo: tablero, catálogo, marcas y categorías, inventario, pedidos, cupones, contenido (avisos legales, FAQ, envíos, devoluciones y contacto), ARCO, clientes, exportación de pedidos a CSV y bitácora de auditoría. Solo el rol `admin` puede modificar; `compliance_officer` solo revisa productos y consulta.
+
+`npm run db:migrate` aplica ahora de la 03 a la 07, en orden, cada una en su transacción y con checksum. Si aplicaste alguna a mano desde el editor SQL, el comando no la reaplica pero se detiene y pide revisión: registra esa migración en `commerce_migrations` o aplica el resto manualmente. Consulta `docs/DATABASE.md`, `docs/SECURITY.md` y `docs/PROJECT_STATUS.md`.
+
 La interfaz puede mostrar catálogo y carrito antes de aplicar la migración. Los pagos y las modificaciones administrativas permanecen deshabilitados hasta que esté aplicada. Los pedidos antiguos no se convierten automáticamente en pedidos pagables: carecen de reservas y deben conciliarse por separado.
 
 ### Permisos
@@ -66,6 +80,12 @@ Esta primera integración admite pagos inmediatos; excluye efectivo, transferenc
 La firma HMAC se verifica sobre `data.id` del query, `x-request-id` y `ts`, con comparación constante y tolerancia de cinco minutos. Después se consulta el pago por la API del proveedor y se validan cuenta receptora, modo de prueba/producción, importe, moneda y referencia del pedido. Mantén sincronizado el reloj del servidor.
 
 Documentación de referencia: [webhooks de Mercado Pago](https://www.mercadopago.com.mx/developers/en/docs/checkout-pro-preferences/additional-content/notifications/webhooks) y [creación de preferencias](https://www.mercadopago.com.mx/developers/es/reference/online-payments/checkout-pro-preferences/create-preference/post).
+
+## Correos transaccionales
+
+Configura `RESEND_API_KEY` y `EMAIL_FROM` (remitente con dominio verificado en Resend). Sin ellas, no se envían correos y todo lo demás funciona igual. Se envía un correo al confirmarse el pago (solo con la primera notificación verificada, no en reintentos), al marcar el pedido como enviado (con paquetería y guía) y al marcarlo como entregado. Todo el contenido se escapa como texto y la clave de idempotencia evita duplicados.
+
+El envío es de mejor esfuerzo: un fallo de Resend se registra sin datos personales y nunca hace fallar el webhook ni la acción del administrador. No hay reintento automático; si un correo falla, avisa al cliente manualmente. Falta la plantilla editable, y los correos de cancelación y reembolso, que no están automatizados.
 
 ## Inventario y reintentos
 

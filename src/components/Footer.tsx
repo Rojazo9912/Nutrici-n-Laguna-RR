@@ -75,6 +75,11 @@ export const Footer: React.FC = () => {
             <li><Link href="/derechos-arco" className="hover:text-red-500">Derechos ARCO</Link></li>
             <li><Link href="/terminos" className="hover:text-red-500">Términos y Condiciones</Link></li>
             <li><Link href="/regulacion-cofepris" className="hover:text-red-500">Política de Revisión Sanitaria</Link></li>
+            <li><Link href="/envios" className="hover:text-red-500">Envíos</Link></li>
+            <li><Link href="/devoluciones" className="hover:text-red-500">Devoluciones</Link></li>
+            <li><Link href="/faq" className="hover:text-red-500">Preguntas frecuentes</Link></li>
+            <li><Link href="/contacto" className="hover:text-red-500">Contacto</Link></li>
+            {/^\d{10,15}$/.test(process.env.NEXT_PUBLIC_WHATSAPP ?? '') && <li><a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="hover:text-red-500">Atención por WhatsApp</a></li>}
           </ul>
         </div>
 

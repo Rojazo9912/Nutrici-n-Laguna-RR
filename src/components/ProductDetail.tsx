@@ -6,6 +6,7 @@ import { useStore } from '@/components/StoreProvider';
 import { availableStock, unitPrice } from '@/lib/commerce';
 import { ShieldCheck, ShoppingCart, Check, RefreshCw, AlertCircle, ArrowLeft, Truck, Award } from 'lucide-react';
 import Link from 'next/link';
+import FavoriteButton from '@/components/FavoriteButton';
 
 export default function ProductDetail({ product }: { product: Product }) {
   const { add } = useStore();
@@ -150,6 +151,7 @@ export default function ProductDetail({ product }: { product: Product }) {
             </button>
           </div>
 
+          <FavoriteButton productId={product.id} />
           {/* Guarantee Badges */}
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800/80 text-xs text-slate-400">
             <div className="flex items-center gap-2">

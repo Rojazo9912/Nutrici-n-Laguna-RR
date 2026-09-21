@@ -10,7 +10,11 @@ const [catalog, migration, policy] = await Promise.all([
   db.rpc('commerce_ready'),
   db.from('site_content').select('content').eq('key','privacidad').maybeSingle(),
 ]);
+console.log(`RESEND_API_KEY/EMAIL_FROM (correos): ${process.env.RESEND_API_KEY && process.env.EMAIL_FROM ? 'configurado' : 'pendiente'}`);
 console.log(`Catálogo: ${catalog.error ? 'no disponible' : `${catalog.count} productos`}`);
+const [dashboard, bucket] = await Promise.all([db.rpc('admin_dashboard'), db.storage.getBucket('products')]);
+console.log(`Migraciones 06-07 (operación administrativa): ${dashboard.error ? 'pendientes' : 'aplicadas'}`);
+console.log(`Bucket de imágenes (migración 04): ${bucket.error ? 'pendiente' : 'listo'}`);
 console.log(`Migración 03: ${migration.data === true ? 'aplicada' : 'pendiente'}`);
 const privacyReady = !policy.error && !!policy.data?.content?.body?.trim() && !!policy.data.content.version;
 console.log(`Aviso de privacidad versionado: ${privacyReady ? 'publicado' : 'pendiente'}`);
