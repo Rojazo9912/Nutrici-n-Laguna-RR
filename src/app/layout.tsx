@@ -3,6 +3,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { StoreProvider } from "@/components/StoreProvider";
+import { StoreChrome } from "@/components/StoreChrome";
 
 export const metadata: Metadata = {
   title: "Nutrición Laguna RR | Suplementos Deportivos y Bienestar",
@@ -24,9 +25,9 @@ export default function RootLayout({
     <html lang="es" className="dark">
       <body className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-slate-950">
         <StoreProvider>
-        <Navbar />
+        <StoreChrome><Navbar /></StoreChrome>
         <main className="flex-grow">{children}</main>
-        <Footer />
+        <StoreChrome><Footer /></StoreChrome>
         </StoreProvider>
       </body>
     </html>

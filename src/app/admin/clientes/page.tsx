@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { staffUser, serviceDatabase } from '@/lib/supabase/server';
 import { money } from '@/lib/commerce';
+import { PageHeader, FilterableList, Notice } from '@/components/AdminUi';
 export const dynamic = 'force-dynamic';
 
 export default async function CustomersPage() {
@@ -14,9 +15,12 @@ export default async function CustomersPage() {
   if (profiles.error || orders.error) throw new Error('No fue posible cargar los clientes');
   const totals = new Map<string, { count: number; total: number }>();
   for (const order of orders.data) { const entry = totals.get(order.user_id) ?? { count: 0, total: 0 }; entry.count++; entry.total += Number(order.total); totals.set(order.user_id, entry); }
-  return <div className="max-w-6xl mx-auto px-4 py-10 space-y-4"><div className="flex items-center justify-between flex-wrap gap-3"><h1 className="text-3xl font-bold">Clientes registrados</h1><a href="/api/admin/export/orders" className="underline text-slate-300">Exportar pedidos (CSV)</a></div>
-    <p className="text-sm text-slate-300">Contiene datos personales: úsalo solo para atender pedidos y solicitudes. Las compras como invitado no aparecen aquí.</p>
-    {profiles.data.length === 0 && <p>Sin clientes registrados.</p>}
-    <ul className="space-y-2">{profiles.data.map(profile => { const t = totals.get(profile.id); return <li key={profile.id} className="glass-panel rounded-lg p-3 text-sm"><strong>{profile.full_name || profile.email}</strong> · {profile.email}{profile.phone ? ` · ${profile.phone}` : ''}<br /><span className="text-slate-300">Alta {new Date(profile.created_at).toLocaleDateString('es-MX')} · {t ? `${t.count} pedidos · ${money(t.total)}` : 'sin compras pagadas'}</span></li>; })}</ul>
-  </div>;
+  const items = profiles.data.map(profile => { const t = totals.get(profile.id); return { id: profile.id, text: `${profile.full_name ?? ''} ${profile.email} ${profile.phone ?? ''}`, node:
+    <div className="adm-card flex flex-wrap items-center justify-between gap-3 p-3 text-sm sm:p-4"><div className="min-w-0"><p className="truncate font-semibold">{profile.full_name || profile.email}</p><p className="truncate text-zinc-400">{profile.email}{profile.phone ? ` · ${profile.phone}` : ''}</p></div>
+      <div className="text-right text-xs text-zinc-400"><p>Alta {new Date(profile.created_at).toLocaleDateString('es-MX')}</p><p className={t ? 'font-semibold text-zinc-200' : ''}>{t ? `${t.count} pedido${t.count === 1 ? '' : 's'} · ${money(t.total)}` : 'Sin compras pagadas'}</p></div></div> }; });
+  return <>
+    <PageHeader title="Clientes registrados" description={`${profiles.data.length} cuentas. Las compras como invitado no aparecen aquí.`} actions={<a href="/api/admin/export/orders" className="adm-btn-secondary">Exportar pedidos (CSV)</a>} />
+    <Notice kind="info">Contiene datos personales: úsalos solo para atender pedidos y solicitudes de los titulares.</Notice>
+    <FilterableList items={items} placeholder="Buscar por nombre, correo o teléfono" empty="Aún no hay clientes registrados." />
+  </>;
 }

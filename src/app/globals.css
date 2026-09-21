@@ -60,3 +60,15 @@ body {
   color: #a1a1aa;
   border: 1px solid rgba(113, 113, 122, 0.3);
 }
+
+/* Panel de administración: componentes compartidos */
+@layer components {
+  .adm-card { @apply rounded-xl border border-zinc-800 bg-zinc-900/60; }
+  .adm-input { @apply block w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/30 disabled:opacity-50; }
+  .adm-label { @apply block text-sm font-medium text-zinc-300; }
+  .adm-btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:cursor-not-allowed disabled:opacity-40; }
+  .adm-btn-primary { @apply adm-btn bg-red-600 text-white hover:bg-red-500; }
+  .adm-btn-secondary { @apply adm-btn border border-zinc-700 bg-zinc-800 text-zinc-100 hover:bg-zinc-700; }
+  .adm-btn-ghost { @apply adm-btn text-zinc-300 hover:bg-zinc-800; }
+  .adm-badge { @apply inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium; }
+}
