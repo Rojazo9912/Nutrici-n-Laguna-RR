@@ -2,22 +2,24 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { MOCK_PRODUCTS, MOCK_CATEGORIES } from '@/data/mockData';
+import { useStore, CatalogStatus } from '@/components/StoreProvider';
 import { ProductCard } from '@/components/ProductCard';
 import { RegulatoryBanner } from '@/components/RegulatoryBanner';
 import { ArrowRight, Flame, ShieldCheck, Zap, Sparkles, Award } from 'lucide-react';
 import { Product } from '@/types/database.types';
 
 export default function HomePage() {
+  const { products, categories, add } = useStore();
   const [notification, setNotification] = useState<string | null>(null);
 
   const handleAddToCart = (product: Product) => {
+    if (!add(product)) { setNotification('No hay más unidades disponibles.'); return; }
     setNotification(`¡"${product.name}" agregado al carrito de compras!`);
     setTimeout(() => setNotification(null), 3500);
   };
 
   // Only display active and approved products on the public homepage
-  const publicProducts = MOCK_PRODUCTS.filter(
+  const publicProducts = products.filter(
     p => p.commercial_status === 'activo' && p.regulatory_status === 'aprobado'
   );
 
@@ -53,7 +55,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Tienda oficial de suplementos deportivos, proteínas de alta pureza, creatina, pre-entrenamientos y multivitaminas con trazabilidad de lotes y cumplimiento sanitario COFEPRIS.
+            Suplementos deportivos, proteínas, creatina, pre-entrenamientos y multivitaminas. Explora el catálogo y elige tu presentación.
           </p>
 
           {/* CTA Buttons */}
@@ -79,7 +81,7 @@ export default function HomePage() {
           <div className="pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-zinc-800/80 max-w-3xl mx-auto">
             <div>
               <span className="text-2xl font-black text-white block">100%</span>
-              <span className="text-xs text-slate-400">Verificado COFEPRIS</span>
+              <span className="text-xs text-slate-400">Revisión interna</span>
             </div>
             <div>
               <span className="text-2xl font-black text-white block">24/7</span>
@@ -87,11 +89,11 @@ export default function HomePage() {
             </div>
             <div>
               <span className="text-2xl font-black text-white block">Lote & Exp</span>
-              <span className="text-xs text-slate-400">Garantizado en Consumibles</span>
+              <span className="text-xs text-slate-400">Control de consumibles</span>
             </div>
             <div>
-              <span className="text-2xl font-black text-white block">&lt; 2.5s</span>
-              <span className="text-xs text-slate-400">Velocidad LCP</span>
+              <span className="text-2xl font-black text-white block">MXN</span>
+              <span className="text-xs text-slate-400">Precios en pesos</span>
             </div>
           </div>
         </div>
@@ -110,7 +112,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {MOCK_CATEGORIES.map(cat => (
+          {categories.map(cat => (
             <Link
               key={cat.id}
               href={`/productos?categoria=${cat.slug}`}
@@ -154,6 +156,7 @@ export default function HomePage() {
           </Link>
         </div>
 
+        <CatalogStatus />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {publicProducts.map(product => (
             <ProductCard
@@ -172,7 +175,7 @@ export default function HomePage() {
             <div className="space-y-3 max-w-xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 text-red-400 text-xs font-semibold border border-red-900/50">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Hoja de Ruta (Fase Posterior PRD 11.0)</span>
+                <span>Próximamente</span>
               </div>
               <h3 className="text-xl font-bold text-white">Asistente de Compra Inteligente con IA</h3>
               <p className="text-xs text-slate-300 leading-relaxed">

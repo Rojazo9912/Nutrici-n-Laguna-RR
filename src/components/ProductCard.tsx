@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Product } from '@/types/database.types';
+import { availableStock, unitPrice } from '@/lib/commerce';
 import { ShieldCheck, ShoppingCart } from 'lucide-react';
 
 interface ProductCardProps {
@@ -25,7 +26,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <div className="absolute top-3 left-3 z-10">
           <span className="badge-aprobado text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
             <ShieldCheck className="w-3.5 h-3.5 text-red-500" />
-            Aprobado COFEPRIS
+            Revisión interna aprobada
           </span>
         </div>
 
@@ -78,7 +79,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           <div>
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-black text-white">
-                ${(hasPromo ? product.price_promo! : product.price_regular).toFixed(2)} MXN
+                ${unitPrice(product, mainVariant).toFixed(2)} MXN
               </span>
               {hasPromo && (
                 <span className="text-xs text-slate-500 line-through">
@@ -87,11 +88,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
               )}
             </div>
             <span className="text-[10px] text-red-400 font-medium block">
-              ✓ En Stock ({mainVariant?.stock_available || 15} disponibles)
+              {availableStock(mainVariant) > 0 ? `${availableStock(mainVariant)} disponibles` : 'Agotado'}
             </span>
           </div>
 
           <button
+            disabled={availableStock(mainVariant) === 0}
             onClick={() => onAddToCart && onAddToCart(product)}
             className="p-3 rounded-xl bg-gradient-to-tr from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold shadow-lg shadow-red-600/30 active:scale-95 transition-all flex items-center justify-center"
             title="Agregar al Carrito"

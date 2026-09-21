@@ -1,19 +1,23 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { MOCK_PRODUCTS, MOCK_CATEGORIES, MOCK_BRANDS } from '@/data/mockData';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useStore, CatalogStatus } from '@/components/StoreProvider';
 import { ProductCard } from '@/components/ProductCard';
 import { Search, Filter, ShieldCheck, X } from 'lucide-react';
 import { Product } from '@/types/database.types';
 
-export default function CatalogPage() {
+function Catalog() {
+  const { products, categories, brands, add, loading, error } = useStore();
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [notification, setNotification] = useState<string | null>(null);
+  useEffect(() => { setSelectedCategory(searchParams.get('categoria') || 'all'); }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter(product => {
+    return products.filter(product => {
       // PRD Security Policy: In public catalog, ONLY show active products approved by regulatory review
       const isApproved = product.commercial_status === 'activo' && product.regulatory_status === 'aprobado';
       if (!isApproved) return false;
@@ -26,9 +30,10 @@ export default function CatalogPage() {
 
       return matchesSearch && matchesCategory && matchesBrand;
     });
-  }, [searchTerm, selectedCategory, selectedBrand]);
+  }, [products, searchTerm, selectedCategory, selectedBrand]);
 
   const handleAddToCart = (product: Product) => {
+    if (!add(product)) { setNotification('No hay más unidades disponibles.'); return; }
     setNotification(`¡"${product.name}" agregado al carrito!`);
     setTimeout(() => setNotification(null), 3000);
   };
@@ -86,8 +91,8 @@ export default function CatalogPage() {
               className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors"
             >
               <option value="all">Todas las Categorías</option>
-              {MOCK_CATEGORIES.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.slug}>{cat.name}</option>
               ))}
             </select>
           </div>
@@ -100,7 +105,7 @@ export default function CatalogPage() {
               className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors"
             >
               <option value="all">Todas las Marcas</option>
-              {MOCK_BRANDS.map(brand => (
+              {brands.map(brand => (
                 <option key={brand.id} value={brand.id}>{brand.name}</option>
               ))}
             </select>
@@ -122,7 +127,8 @@ export default function CatalogPage() {
       </div>
 
       {/* Grid of Filtered Products */}
-      {filteredProducts.length > 0 ? (
+      <CatalogStatus />
+      {loading || error ? null : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map(product => (
             <ProductCard
@@ -143,4 +149,8 @@ export default function CatalogPage() {
       )}
     </div>
   );
+}
+
+export default function CatalogPage() {
+  return <Suspense fallback={<p className="p-8">Cargando catálogo…</p>}><Catalog /></Suspense>;
 }

@@ -11,29 +11,29 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center gap-3">
           <ShieldCheck className="w-8 h-8 text-red-500 shrink-0" />
           <div>
-            <h4 className="font-semibold text-slate-200">Revisión Regulatoria COFEPRIS</h4>
+            <h4 className="font-semibold text-slate-200">Catálogo revisado</h4>
             <p className="text-xs text-slate-500">Solo suplementos permitidos de venta libre</p>
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-3">
           <Lock className="w-8 h-8 text-red-500 shrink-0" />
           <div>
-            <h4 className="font-semibold text-slate-200">Pagos Seguros con Webhook</h4>
-            <p className="text-xs text-slate-500">Confirmación criptográfica verificada</p>
+            <h4 className="font-semibold text-slate-200">Pago en Mercado Pago</h4>
+            <p className="text-xs text-slate-500">Consulta el estado de tu pedido</p>
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-3">
           <Truck className="w-8 h-8 text-red-500 shrink-0" />
           <div>
             <h4 className="font-semibold text-slate-200">Envío Rápido y Rastreado</h4>
-            <p className="text-xs text-slate-500">Cobertura nacional garantizada</p>
+            <p className="text-xs text-slate-500">Consulta las condiciones de envío</p>
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-3">
           <RefreshCw className="w-8 h-8 text-red-500 shrink-0" />
           <div>
             <h4 className="font-semibold text-slate-200">Lotes y Caducidades</h4>
-            <p className="text-xs text-slate-500">Garantía de frescura en cada producto</p>
+            <p className="text-xs text-slate-500">Asignación de lotes vigentes</p>
           </div>
         </div>
       </div>

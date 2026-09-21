@@ -12,15 +12,15 @@ export const RegulatoryBanner: React.FC = () => {
         <div className="space-y-4 max-w-2xl text-center lg:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/80 border border-red-800 text-red-400 text-xs font-semibold">
             <ShieldCheck className="w-4 h-4 text-red-400" />
-            <span>Marco Regulatorio y Seguridad Sanitaria (Sección 5 PRD)</span>
+            <span>Información y revisión de productos</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Transparencia Total: Ningún Suplemento sin Validación COFEPRIS
+            Un catálogo con revisión interna
           </h2>
 
           <p className="text-sm text-slate-300 leading-relaxed">
-            En <strong className="text-red-500">Nutrición Laguna RR</strong>, la protección al consumidor y el cumplimiento de la Ley General de Salud condicionan nuestro modelo de catálogo desde el día uno. Cada producto publicado cuenta con trazabilidad de lotes, fecha de caducidad y estatus regulatorio verificado.
+            En <strong className="text-red-500">Nutrición Laguna RR</strong>, la protección al consumidor y el cumplimiento de la Ley General de Salud condicionan nuestro modelo de catálogo desde el día uno. La revisión interna de un producto no equivale a una autorización emitida por una autoridad sanitaria. Consulta su etiqueta e información antes de comprar.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
@@ -61,7 +61,7 @@ export const RegulatoryBanner: React.FC = () => {
               <span className="text-xs text-red-400 font-semibold">100% De Venta Libre</span>
             </div>
             <div className="pt-2 text-[10px] text-slate-400 border-t border-zinc-800">
-              Verificación Sanitaria & RLS Activa
+              Consulta nuestra política de revisión
             </div>
           </div>
         </div>

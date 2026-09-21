@@ -1,36 +1,22 @@
 import { NextResponse } from 'next/server';
+import { verifyMercadoSignature } from '@/lib/payment-signature';
+import { paymentConfig, mercadoRequest } from '@/lib/payments';
+import { serviceDatabase } from '@/lib/supabase/server';
+import { errorResponse, HttpError } from '@/lib/http';
+import { UUID } from '@/lib/commerce';
 
 export async function POST(request: Request) {
   try {
-    const signature = request.headers.get('x-signature') || request.headers.get('x-hub-signature');
-    const body = await request.json();
-
-    // Verificación criptográfica de firma (Regla Dura PRD Sección 3.3)
-    if (!signature) {
-      return NextResponse.json(
-        { error: 'Acceso denegado: Firma de webhook ausente o inválida' },
-        { status: 401 }
-      );
-    }
-
-    const { order_id, status } = body;
-
-    // Simulación de actualización de estado de orden en base de datos PostgreSQL
-    console.log(`[WEBHOOK NUTRICIÓN LAGUNA RR] Procesando confirmación criptográfica para la Orden ${order_id}...`);
-    console.log(`[WEBHOOK NUTRICIÓN LAGUNA RR] Nuevo Estatus de Pago Verificado: ${status.toUpperCase()}`);
-
-    return NextResponse.json({
-      success: true,
-      order_id,
-      payment_status: status === 'approved' ? 'pagado' : 'pendiente',
-      verified_via_webhook: true,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: 'Error procesando webhook', details: error.message },
-      { status: 500 }
-    );
-  }
+    const config = paymentConfig();
+    const query = new URL(request.url).searchParams;
+    const id = query.get('data.id');
+    if (!verifyMercadoSignature(request.headers.get('x-signature'), request.headers.get('x-request-id'), id, config.secret)) throw new HttpError(401, 'Firma inválida.');
+    if (query.get('type') && query.get('type') !== 'payment') return NextResponse.json({ received: true });
+    // The request body cannot choose an order, status or amount.
+    const [payment, merchant] = await Promise.all([mercadoRequest(`/v1/payments/${encodeURIComponent(id!)}`), mercadoRequest('/users/me')]);
+    if (String(payment.id) !== id || String(payment.collector_id) !== String(merchant.id) || payment.live_mode !== config.live || !UUID.test(payment.external_reference ?? '') || !Number.isFinite(payment.transaction_amount) || !Number.isFinite(Date.parse(payment.date_last_updated))) throw new HttpError(400, 'Pago no válido para esta tienda.');
+    const { data, error } = await serviceDatabase().rpc('apply_verified_payment', { p_order: payment.external_reference, p_transaction: String(payment.id), p_status: payment.status, p_amount: payment.transaction_amount, p_currency: payment.currency_id, p_updated: payment.date_last_updated });
+    if (error) throw new HttpError(503, 'No fue posible registrar la notificación.');
+    return NextResponse.json({ received: true, result: data });
+  } catch (error) { return errorResponse(error); }
 }

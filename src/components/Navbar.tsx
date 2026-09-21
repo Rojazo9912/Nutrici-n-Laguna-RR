@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useStore } from '@/components/StoreProvider';
 import { ShoppingBag, Search, ShieldCheck, User, Menu, X, ShieldAlert } from 'lucide-react';
 
 interface NavbarProps {
   cartCount?: number;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ cartCount = 2 }) => {
+export const Navbar: React.FC<NavbarProps> = () => {
+  const { count: cartCount } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -16,7 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount = 2 }) => {
       {/* Top Banner - Regulatory Compliance Notice */}
       <div className="bg-red-950/80 text-red-300 text-xs py-1.5 px-4 text-center border-b border-red-800/40 flex items-center justify-center gap-2 font-medium">
         <ShieldCheck className="w-4 h-4 text-red-400" />
-        <span>Garantía Nutrición Laguna RR: Suplementos, Proteínas y Vitaminas 100% Verificados COFEPRIS</span>
+        <span>Nutrición Laguna RR: Suplementos, Proteínas y Vitaminas</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount = 2 }) => {
           <Link href="/" className="block py-2 text-slate-200 hover:text-red-500 font-medium" onClick={() => setMobileMenuOpen(false)}>Inicio</Link>
           <Link href="/productos" className="block py-2 text-slate-200 hover:text-red-500 font-medium" onClick={() => setMobileMenuOpen(false)}>Catálogo Completo</Link>
           <Link href="/carrito" className="block py-2 text-slate-200 hover:text-red-500 font-medium" onClick={() => setMobileMenuOpen(false)}>Ver Carrito</Link>
-          <Link href="/admin/productos" className="block py-2 text-amber-400 hover:text-amber-300 font-medium" onClick={() => setMobileMenuOpen(false)}>Panel Regulatorio COFEPRIS</Link>
+          <Link href="/admin/productos" className="block py-2 text-amber-400 hover:text-amber-300 font-medium" onClick={() => setMobileMenuOpen(false)}>Administración</Link>
         </div>
       )}
     </header>
