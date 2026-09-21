@@ -6,11 +6,13 @@ import { validateCheckout, UUID } from '@/lib/commerce';
 import { checkOrigin, readBody, HttpError, databaseError, digest, errorResponse } from '@/lib/http';
 import { GUEST_COOKIE } from '@/lib/order-access';
 import { paymentConfig } from '@/lib/payments';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
     checkOrigin(request);
     paymentConfig();
+    await enforceRateLimit(request, 'checkout', 20, 3600);
     const key = request.headers.get('idempotency-key');
     if (!key || !UUID.test(key)) throw new HttpError(400, 'Falta el identificador del intento de compra.');
     const body = await readBody(request) as Record<string, unknown>;
