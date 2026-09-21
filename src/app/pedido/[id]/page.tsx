@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { money } from '@/lib/commerce';
-type OrderView = { id: string; number: number; status: string; total: number; subtotal: number; discount: number; shipping: number; review: boolean; expiresAt: string };
+type OrderView = { id: string; number: number; status: string; total: number; subtotal: number; discount: number; shipping: number; review: boolean; expiresAt: string; carrier: string | null; tracking: string | null };
 export default function OrderPage() {
   const params = useParams<{ id: string }>();
   const [order, setOrder] = useState<OrderView | null>(null);
@@ -41,7 +41,7 @@ export default function OrderPage() {
     {!order && !error && <p role="status">Consultando pedido…</p>}
     {order && <div className="glass-panel p-6 rounded-2xl space-y-4">
       <h2 className="text-xl font-bold">Pedido #{order.number}</h2><p role="status">{order.review ? 'Tu pago requiere revisión. No vuelvas a pagar este pedido.' : `Estado: ${order.status}`}</p>
-      <p>Subtotal: {money(order.subtotal)}</p><p>Descuento: −{money(order.discount)}</p><p>Envío: {money(order.shipping)}</p><p className="text-xl font-bold">Total confirmado: {money(order.total)} MXN</p>
+      {order.tracking && <p>Guía de envío: {order.carrier} {order.tracking}</p>}<p>Subtotal: {money(order.subtotal)}</p><p>Descuento: −{money(order.discount)}</p><p>Envío: {money(order.shipping)}</p><p className="text-xl font-bold">Total confirmado: {money(order.total)} MXN</p>
       {order.status === 'pendiente' && !order.review && <><p className="text-sm text-slate-400">El pago se confirma cuando recibimos la notificación de Mercado Pago. Si ya pagaste, espera la confirmación antes de volver a intentarlo.</p>{Date.parse(order.expiresAt) > Date.now() ? <button onClick={() => void pay()} disabled={busy} className="bg-red-600 rounded-xl p-3 font-bold disabled:opacity-40">{busy ? 'Abriendo Mercado Pago…' : 'Pagar en Mercado Pago'}</button> : <p>El plazo de pago terminó. El pedido pendiente se cancelará al liberar su reserva.</p>}</>}
       <button className="block underline text-slate-300" onClick={() => window.location.reload()}>Actualizar estado</button>
     </div>}

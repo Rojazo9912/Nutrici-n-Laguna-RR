@@ -4,6 +4,7 @@ import { paymentConfig, mercadoRequest } from '@/lib/payments';
 import { serviceDatabase } from '@/lib/supabase/server';
 import { errorResponse, HttpError } from '@/lib/http';
 import { UUID } from '@/lib/commerce';
+import { sendOrderEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     if (String(payment.id) !== id || String(payment.collector_id) !== String(merchant.id) || payment.live_mode !== config.live || !UUID.test(payment.external_reference ?? '') || !Number.isFinite(payment.transaction_amount) || !Number.isFinite(Date.parse(payment.date_last_updated))) throw new HttpError(400, 'Pago no válido para esta tienda.');
     const { data, error } = await serviceDatabase().rpc('apply_verified_payment', { p_order: payment.external_reference, p_transaction: String(payment.id), p_status: payment.status, p_amount: payment.transaction_amount, p_currency: payment.currency_id, p_updated: payment.date_last_updated });
     if (error) throw new HttpError(503, 'No fue posible registrar la notificación.');
+    if (data === 'paid') await sendOrderEmail(payment.external_reference, 'paid');
     return NextResponse.json({ received: true, result: data });
   } catch (error) { return errorResponse(error); }
 }
