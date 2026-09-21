@@ -43,3 +43,8 @@ export async function staffUser() {
   if (error || !data || !['admin', 'compliance_officer'].includes(data.role)) return null;
   return { id: user.id, role: data.role as string };
 }
+export async function uploadImage(file: File, path: string) {
+  const storage = serviceDatabase().storage.from('products');
+  const { error } = await storage.upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+  return { error, url: error ? '' : storage.getPublicUrl(path).data.publicUrl };
+}

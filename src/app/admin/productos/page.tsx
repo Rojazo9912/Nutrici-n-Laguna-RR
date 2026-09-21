@@ -8,8 +8,8 @@ export default async function AdminPage() {
   const staff = await staffUser();
   if (!staff) redirect('/cuenta');
   const db = serviceDatabase();
-  const [products, ready] = await Promise.all([db.from('products').select(PRODUCT_FIELDS).order('name'), db.rpc('commerce_ready')]);
+  const [products, ready, brands, categories] = await Promise.all([db.from('products').select(PRODUCT_FIELDS).order('name'), db.rpc('commerce_ready'), db.from('brands').select('id,name').order('name'), db.from('categories').select('id,name').eq('is_active', true).order('name')]);
   if (products.error) throw new Error('No fue posible cargar los productos');
   const reviews = ready.data ? await db.from('orders').select('id,order_number,status,total').eq('payment_review_required',true).order('created_at',{ascending:false}).limit(100) : { data: [] };
-  return <AdminProducts products={products.data as unknown as Product[]} ready={!ready.error && !!ready.data} reviews={reviews.data || []} />;
+  return <AdminProducts products={products.data as unknown as Product[]} ready={!ready.error && !!ready.data} reviews={reviews.data || []} brands={brands.data || []} categories={categories.data || []} />;
 }
