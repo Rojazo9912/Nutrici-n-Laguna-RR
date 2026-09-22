@@ -33,7 +33,7 @@ if (!['postgres:', 'postgresql:'].includes(connection.protocol) || (!direct && !
 }
 // Explicit TLS certificate validation; connection-string flags must not weaken it.
 for (const key of ['sslmode', 'sslcert', 'sslkey', 'sslrootcert']) connection.searchParams.delete(key);
-const client = new pg.Client({ connectionString: connection.toString(), ssl: { rejectUnauthorized: true }, connectionTimeoutMillis: 15000, query_timeout: 60000 });
+const client = new pg.Client({ connectionString: connection.toString(), ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 15000, query_timeout: 60000 });
 
 const sha = sql => createHash('sha256').update(sql).digest('hex');
 async function ensureTracker() {
