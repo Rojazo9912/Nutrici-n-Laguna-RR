@@ -5,8 +5,9 @@ export function paymentConfig() {
   const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
   const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
   const base = process.env.APP_URL;
-  if (!token || !secret || !base || !base.startsWith('https://')) throw new HttpError(503, 'Los pagos en línea aún no están disponibles.');
-  return { token, secret, base: new URL(base).origin, live: process.env.MERCADOPAGO_MODE === 'live' };
+  const mode = process.env.MERCADOPAGO_MODE;
+  if (!token || !secret || !base || !base.startsWith('https://') || (mode !== 'test' && mode !== 'live')) throw new HttpError(503, 'Los pagos en línea aún no están disponibles.');
+  return { token, secret, base: new URL(base).origin, live: mode === 'live' };
 }
 
 export async function mercadoRequest(path: string, init: RequestInit = {}) {

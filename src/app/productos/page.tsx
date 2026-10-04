@@ -69,6 +69,7 @@ function Catalog() {
             <input
               type="text"
               placeholder="Buscar por producto, ingrediente..."
+              aria-label="Buscar productos"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"

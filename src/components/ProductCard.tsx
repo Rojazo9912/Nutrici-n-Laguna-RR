@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Product } from '@/types/database.types';
 import { availableStock, unitPrice } from '@/lib/commerce';
 import { ShieldCheck, ShoppingCart } from 'lucide-react';
@@ -37,10 +38,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           </div>
         )}
 
-        <img
+        <Image
           src={primaryImage}
           alt={product.name}
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-contain group-hover:scale-105 transition-transform duration-500"
         />
       </div>
 
@@ -97,6 +100,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             onClick={() => onAddToCart && onAddToCart(product)}
             className="p-3 rounded-xl bg-gradient-to-tr from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold shadow-lg shadow-red-600/30 active:scale-95 transition-all flex items-center justify-center"
             title="Agregar al Carrito"
+            aria-label={`Agregar ${product.name} al carrito`}
           >
             <ShoppingCart className="w-4 h-4" />
           </button>
