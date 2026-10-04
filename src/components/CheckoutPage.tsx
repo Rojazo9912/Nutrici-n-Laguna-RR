@@ -64,7 +64,7 @@ export default function CheckoutPage() {
     <h1 className="text-3xl font-bold">Finalizar compra</h1><CatalogStatus />
     {!config && <p role="status">Comprobando disponibilidad de pagos…</p>}
     {config && !config.available && <p role="status" className="rounded-xl bg-amber-950 p-5 text-amber-200">{config.message}</p>}
-    {!store.loading && !store.lines.length ? <Link href="/productos" className="underline">Tu carrito está vacío. Explorar catálogo.</Link> : <form onSubmit={submit} className="grid gap-6 md:grid-cols-2">
+    {!store.loading && !store.lines.length ? <Link href="/productos" className="underline">Tu carrito está vacío. Explorar catálogo.</Link> : <form onSubmit={submit} aria-busy={busy} className="grid gap-6 md:grid-cols-2">
       <fieldset disabled={busy || !config?.available} className="glass-panel rounded-2xl p-6 space-y-4 disabled:opacity-60">
         <legend className="font-bold">Datos de envío</legend>
         {fields.map(([key,label,type]) => <label key={key} className="block text-sm">{label}<input name={key} required type={type} maxLength={key === 'postalCode' ? 5 : key === 'email' ? 254 : key === 'street' ? 250 : key === 'phone' ? 20 : 120} pattern={key === 'postalCode' ? '[0-9]{5}' : undefined} autoComplete={{ fullName: 'name', email: 'email', phone: 'tel', street: 'street-address', city: 'address-level2', state: 'address-level1', postalCode: 'postal-code' }[key]} value={customer[key]} onChange={event => setCustomer({ ...customer, [key]: event.target.value })} className="mt-1 block w-full rounded-lg border border-slate-600 bg-slate-900 p-3" /></label>)}
@@ -75,10 +75,10 @@ export default function CheckoutPage() {
         {store.items.map(item => <p key={item.variantId} className="text-sm">{item.quantity} × {item.product.name} · {money(item.price * item.quantity)}</p>)}
         <label className="block text-sm">Cupón opcional<input value={coupon} maxLength={40} onChange={event => setCoupon(event.target.value)} disabled={busy} className="mt-1 block w-full bg-slate-900 border border-slate-600 rounded-lg p-3 uppercase" /></label>
         <button type="button" disabled={busy || !store.lines.length || !config?.available} onClick={() => void getQuote()} className="border border-slate-500 rounded-xl p-3 w-full disabled:opacity-40">{busy ? 'Procesando…' : 'Verificar existencias y total'}</button>
-        {quoteValid && <div className="space-y-2 text-sm"><p>Subtotal: {money(quote.subtotal)}</p><p>Descuento: −{money(quote.discount)}</p><p>Envío: {money(quote.shipping)}</p><p className="text-xl font-bold">Total: {money(quote.total)} MXN</p></div>}
+        {quoteValid && <div aria-live="polite" className="space-y-2 text-sm"><p>Subtotal: {money(quote.subtotal)}</p><p>Descuento: −{money(quote.discount)}</p><p>Envío: {money(quote.shipping)}</p><p className="text-xl font-bold">Total: {money(quote.total)} MXN</p></div>}
         {!quoteValid && <p className="text-sm text-slate-400">Verifica el total antes de confirmar. Los precios y existencias se revisan nuevamente al crear el pedido.</p>}
         <p className="text-sm text-slate-400">Paga con tarjeta en Mercado Pago. Tendrás 30 minutos para completar el pago.</p>
-        {error && <p role="alert" className="text-red-300">{error}</p>}
+        {error && <p role="alert" aria-live="assertive" className="text-red-300">{error}</p>}
         <button disabled={busy || !quoteValid || !privacyConsent || !config?.available || store.loading || !!store.error} className="bg-red-600 rounded-xl p-3 w-full font-bold disabled:opacity-40">Confirmar pedido</button>
       </div>
     </form>}
