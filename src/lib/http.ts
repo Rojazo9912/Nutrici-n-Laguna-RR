@@ -7,8 +7,19 @@ export class HttpError extends Error {
 }
 export function digest(value: string) { return createHash('sha256').update(value).digest('hex'); }
 export function checkOrigin(request: Request) {
-  const expected = process.env.APP_URL ? new URL(process.env.APP_URL).origin : new URL(request.url).origin;
-  if (request.headers.get('origin') !== expected) throw new HttpError(403, 'Origen no permitido.');
+  const requestOrigin = new URL(request.url).origin;
+  const configuredOrigin = process.env.APP_URL ? new URL(process.env.APP_URL).origin : null;
+  const origin = request.headers.get('origin');
+  const allowed = new Set([configuredOrigin ?? requestOrigin]);
+  if (!configuredOrigin && process.env.NODE_ENV !== 'production') {
+    const url = new URL(request.url);
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      const port = url.port ? `:${url.port}` : '';
+      allowed.add(`${url.protocol}//localhost${port}`);
+      allowed.add(`${url.protocol}//127.0.0.1${port}`);
+    }
+  }
+  if (!origin || !allowed.has(origin)) throw new HttpError(403, 'Origen no permitido.');
 }
 export async function readBody(request: Request): Promise<unknown> {
   if (!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError(415, 'Se requiere JSON.');

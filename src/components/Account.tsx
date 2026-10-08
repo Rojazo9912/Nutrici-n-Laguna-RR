@@ -11,13 +11,14 @@ export default function Account({ email, orders, staff }: { email: string | null
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const publicOrigin = () => (process.env.NEXT_PUBLIC_APP_URL || window.location.origin).replace(/\/$/, '');
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setMessage('');
     const data = new FormData(event.currentTarget);
     try {
       const client = createClient();
       const credentials = { email: String(data.get('email')), password: String(data.get('password')) };
-      const result = mode === 'login' ? await client.auth.signInWithPassword(credentials) : await client.auth.signUp({ ...credentials, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } });
+      const result = mode === 'login' ? await client.auth.signInWithPassword(credentials) : await client.auth.signUp({ ...credentials, options: { emailRedirectTo: `${publicOrigin()}/auth/callback` } });
       if (result.error) throw new Error(mode === 'login' ? 'No pudimos iniciar sesión. Revisa tus datos.' : 'No pudimos crear la cuenta. Verifica el correo y la contraseña.');
       if (mode === 'signup' && !result.data.session) setMessage('Revisa tu correo para confirmar tu cuenta.');
       else { router.refresh(); }
@@ -45,7 +46,7 @@ export default function Account({ email, orders, staff }: { email: string | null
     const address = String(new FormData(form ?? undefined).get('email') ?? '').trim();
     if (!address) { setMessage('Escribe tu correo y vuelve a pulsar «Olvidé mi contraseña».'); return; }
     setBusy(true); setMessage('');
-    try { await createClient().auth.resetPasswordForEmail(address, { redirectTo: `${window.location.origin}/auth/callback?next=/cuenta/restablecer` }); }
+    try { await createClient().auth.resetPasswordForEmail(address, { redirectTo: `${publicOrigin()}/auth/callback?next=/cuenta/restablecer` }); }
     catch { /* The same neutral message is shown either way so accounts cannot be enumerated. */ }
     setMessage('Si el correo tiene una cuenta, enviamos un enlace para restablecer la contraseña.'); setBusy(false);
   }
