@@ -7,7 +7,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Search, Filter, ShieldCheck, X, ArrowUpDown, CheckCircle2, SlidersHorizontal } from 'lucide-react';
 import { Product } from '@/types/database.types';
 import { unitPrice } from '@/lib/commerce';
-import { MACRO_CATEGORIES, productMatchesCategory, RESTRICTED_CATEGORY_SLUGS } from '@/lib/macro-categories';
+import { MACRO_CATEGORIES, productMatchesCategory } from '@/lib/macro-categories';
 
 function Catalog() {
   const { products, categories, brands, add, loading, error } = useStore();
@@ -27,11 +27,6 @@ function Catalog() {
       // PRD Security Policy: In public catalog, ONLY show active products approved by regulatory review
       const isApproved = product.commercial_status === 'activo' && product.regulatory_status === 'aprobado';
       if (!isApproved) return false;
-
-      // Ensure restricted substances never leak to public catalog
-      if (product.category?.slug && RESTRICTED_CATEGORY_SLUGS.has(product.category.slug)) {
-        return false;
-      }
 
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
