@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="dark">
-      <body className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-slate-950">
+      <body className="min-h-screen flex flex-col bg-[#070709] text-zinc-100 selection:bg-red-600 selection:text-white antialiased">
         <StoreProvider>
         <StoreChrome><Navbar /></StoreChrome>
         <main className="flex-grow">{children}</main>
