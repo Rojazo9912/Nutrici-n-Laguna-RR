@@ -18,6 +18,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { Product } from '@/types/database.types';
+import { MACRO_CATEGORIES, MACRO_CATEGORY_ICONS } from '@/lib/macro-categories';
 
 export default function HomePage() {
   const { products, categories, add } = useStore();
@@ -158,34 +159,43 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:overflow-visible sm:px-0">
-          {categories.slice(0, 10).map(cat => (
-            <Link
-              key={cat.id}
-              href={`/productos?categoria=${cat.slug}`}
-              aria-label={`Ver productos de ${cat.name}`}
-              className="group relative min-w-[220px] snap-start overflow-hidden rounded-2xl glass-card p-5 transition-all duration-300 hover:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:min-w-0 flex flex-col justify-between"
-            >
-              <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-red-600/10 blur-xl transition-all duration-300 group-hover:bg-red-600/25" />
-              
-              <div className="relative">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-red-500/30 bg-gradient-to-tr from-red-600/20 to-red-900/20 text-red-400 transition-all duration-300 group-hover:scale-110 group-hover:border-red-500 group-hover:text-red-300 shadow-md">
-                  <Zap className="h-5 w-5" />
-                </div>
-                <h3 className="line-clamp-2 text-base font-bold text-white transition-colors group-hover:text-red-400 font-display">
-                  {cat.name}
-                </h3>
-                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400">
-                  {cat.description || 'Fórmulas de alto rendimiento para complementar tu objetivo diario.'}
-                </p>
-              </div>
+        <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 sm:overflow-visible sm:px-0">
+          {MACRO_CATEGORIES.map(cat => {
+            const IconComponent = MACRO_CATEGORY_ICONS[cat.iconName] || Zap;
+            return (
+              <Link
+                key={cat.id}
+                href={`/productos?categoria=${cat.slug}`}
+                aria-label={`Ver productos de ${cat.title}`}
+                className="group relative min-w-[240px] snap-start overflow-hidden rounded-2xl glass-card p-5 transition-all duration-300 hover:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:min-w-0 flex flex-col justify-between"
+              >
+                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-red-600/10 blur-xl transition-all duration-300 group-hover:bg-red-600/25" />
+                
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-red-500/30 bg-gradient-to-tr from-red-600/20 to-red-900/20 text-red-400 transition-all duration-300 group-hover:scale-110 group-hover:border-red-500 group-hover:text-red-300 shadow-md">
+                      <IconComponent className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-red-400/90 bg-red-950/40 border border-red-900/40 px-2 py-0.5 rounded-md">
+                      {cat.badgeText}
+                    </span>
+                  </div>
 
-              <div className="pt-4 mt-auto flex items-center justify-between text-xs font-semibold text-red-400 group-hover:text-red-300">
-                <span>Explorar</span>
-                <span className="transform transition-transform group-hover:translate-x-1">→</span>
-              </div>
-            </Link>
-          ))}
+                  <h3 className="line-clamp-2 text-base font-bold text-white transition-colors group-hover:text-red-400 font-display">
+                    {cat.title}
+                  </h3>
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400">
+                    {cat.description}
+                  </p>
+                </div>
+
+                <div className="pt-4 mt-auto flex items-center justify-between text-xs font-semibold text-red-400 group-hover:text-red-300">
+                  <span>Explorar línea</span>
+                  <span className="transform transition-transform group-hover:translate-x-1">→</span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 

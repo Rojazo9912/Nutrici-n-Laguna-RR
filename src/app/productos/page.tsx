@@ -7,6 +7,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Search, Filter, ShieldCheck, X, ArrowUpDown, CheckCircle2, SlidersHorizontal } from 'lucide-react';
 import { Product } from '@/types/database.types';
 import { unitPrice } from '@/lib/commerce';
+import { MACRO_CATEGORIES, productMatchesCategory, RESTRICTED_CATEGORY_SLUGS } from '@/lib/macro-categories';
 
 function Catalog() {
   const { products, categories, brands, add, loading, error } = useStore();
@@ -27,14 +28,16 @@ function Catalog() {
       const isApproved = product.commercial_status === 'activo' && product.regulatory_status === 'aprobado';
       if (!isApproved) return false;
 
+      // Ensure restricted substances never leak to public catalog
+      if (product.category?.slug && RESTRICTED_CATEGORY_SLUGS.has(product.category.slug)) {
+        return false;
+      }
+
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (product.description_short && product.description_short.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesCategory =
-        selectedCategory === 'all' ||
-        product.category_id === selectedCategory ||
-        product.category?.slug === selectedCategory;
+      const matchesCategory = productMatchesCategory(product, selectedCategory);
       const matchesBrand = selectedBrand === 'all' || product.brand_id === selectedBrand;
 
       return matchesSearch && matchesCategory && matchesBrand;
@@ -107,7 +110,7 @@ function Catalog() {
         >
           Todos los Suplementos
         </button>
-        {categories.map(cat => (
+        {MACRO_CATEGORIES.map(cat => (
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.slug)}
@@ -117,7 +120,7 @@ function Catalog() {
                 : 'bg-zinc-900/80 text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-700'
             }`}
           >
-            {cat.name}
+            {cat.shortTitle}
           </button>
         ))}
       </div>
@@ -157,8 +160,8 @@ function Catalog() {
               aria-label="Filtrar por categoría"
             >
               <option value="all">Todas las Categorías</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.slug}>{cat.name}</option>
+              {MACRO_CATEGORIES.map(cat => (
+                <option key={cat.id} value={cat.slug}>{cat.title}</option>
               ))}
             </select>
           </div>
