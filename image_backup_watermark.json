@@ -9013,5 +9013,59 @@
   "display_order": 1,
   "is_primary": true,
   "created_at": "2026-10-08T19:50:47.720726+00:00"
+ },
+ {
+  "id": "6104c37e-067d-4575-8291-f35cda005b7a",
+  "product_id": "ae485514-6732-42d9-bd21-9c88cad3c4aa",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/ae485514-6732-42d9-bd21-9c88cad3c4aa/1.jpg",
+  "alt_text": "Isopure 20 Sobres Proteina 0 grasa 0 carbohidratos en varios sabores Nature's Best",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-13T19:44:21.718171+00:00"
+ },
+ {
+  "id": "699e4697-3d2d-4fff-b1b1-6f02283066d2",
+  "product_id": "86a6b1a7-42af-481b-b7d8-53c91f99d234",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/86a6b1a7-42af-481b-b7d8-53c91f99d234/1.jpg",
+  "alt_text": "Lean Body 20 Sobres - Delicioso sabor, Sin maltodextrina, libre de aspartamo. Labrada",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-08T19:40:39.693915+00:00"
+ },
+ {
+  "id": "fdb018ae-908c-4cab-82e2-f3facff10f93",
+  "product_id": "694ea021-cf53-4e36-8319-811b447f6ab9",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/694ea021-cf53-4e36-8319-811b447f6ab9/1.jpg",
+  "alt_text": "Lean Body 42 Sobres - Delicioso sabor chocolate, Sin maltodextrina, libre de aspartamo. Labrada",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-08T19:51:29.25171+00:00"
+ },
+ {
+  "id": "691d8335-85e5-4dda-b730-737663ab6299",
+  "product_id": "e9624a4a-5c53-4a64-9b3d-933189ba66be",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/e9624a4a-5c53-4a64-9b3d-933189ba66be/1.jpg",
+  "alt_text": "Best Aminos - Apoya la recuperación, más glutamina e hidratacion sostenida. BPI Sport",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-08T20:34:26.943882+00:00"
+ },
+ {
+  "id": "49734ead-f62f-4502-bcfa-6e477011dc55",
+  "product_id": "d57fee37-2d4e-4438-a6c9-7f83263301d6",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/d57fee37-2d4e-4438-a6c9-7f83263301d6/1.jpg",
+  "alt_text": "Platinum L-Carnitine 1500 - Carnitina Bebible para tus Post-Entrenos. Muscle-Tech.",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-13T19:44:26.432611+00:00"
+ },
+ {
+  "id": "999e229c-17e8-40aa-b097-f0228f1b980b",
+  "product_id": "5049b446-9f4b-41ac-8b0a-97dc3a3c07c3",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/5049b446-9f4b-41ac-8b0a-97dc3a3c07c3/1.jpg",
+  "alt_text": "Xenadrine NextGen 60 caps - Quemador de Grasa Súper Efectivo de última generación.",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-08T20:38:19.952418+00:00"
  }
 ]
