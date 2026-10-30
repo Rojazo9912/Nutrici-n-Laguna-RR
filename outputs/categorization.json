@@ -605,20 +605,12 @@
   ],
   "candidates": [
     {
-      "product_id": "ae485514-6732-42d9-bd21-9c88cad3c4aa",
-      "producto": "Isopure 20 Sobres Proteina 0 grasa 0 carbohidratos en varios sabores Nature's Best"
-    },
-    {
       "product_id": "d885f618-2030-4174-bc59-49a046baeb3b",
       "producto": "Dream Tan F1 Gold/Brown"
     },
     {
       "product_id": "55c6f118-4036-41a4-9726-3ac332789cb2",
       "producto": "Thiomucase Crema"
-    },
-    {
-      "product_id": "86a6b1a7-42af-481b-b7d8-53c91f99d234",
-      "producto": "Lean Body 20 Sobres - Delicioso sabor, Sin maltodextrina, libre de aspartamo. Labrada"
     },
     {
       "product_id": "5f9980ef-d4ef-4252-9f73-9da52329b3f5",
@@ -639,10 +631,6 @@
     {
       "product_id": "d8fa22b1-90cc-49dd-832a-49912389c8ed",
       "producto": "Nitric Oxide Euphoric 50 srv - Potencia de Energia para entrenar a lo bestia. Euphoric"
-    },
-    {
-      "product_id": "cb22cd3b-01bf-4e4f-9130-03bc6d4b5832",
-      "producto": "Elite Liquid - Proteina Liquida 25gr 12 piezas. Dymatize"
     },
     {
       "product_id": "d31ae45c-fec6-4f9f-948e-3748c379f496",
@@ -667,14 +655,6 @@
     {
       "product_id": "477ccb64-46d3-44cb-823b-bee90366214b",
       "producto": "Omega-3 270 caps Grasas Esenciales Betancourt Nutrition"
-    },
-    {
-      "product_id": "694ea021-cf53-4e36-8319-811b447f6ab9",
-      "producto": "Lean Body 42 Sobres - Delicioso sabor chocolate, Sin maltodextrina, libre de aspartamo. Labrada"
-    },
-    {
-      "product_id": "7cee1522-f25e-48af-8863-12bd7c313f3c",
-      "producto": "Lean Body Cookie Roll - Barras de Poteina 25gr. Labrada"
     },
     {
       "product_id": "8138ef7b-2f5a-47fe-8dcf-6f583bd89d0e",
@@ -761,16 +741,8 @@
       "producto": "Super Drive - Energía explosiva y Recuperación más rápida. Gaspari Nutrition"
     },
     {
-      "product_id": "627b62d8-3c2e-4695-b2c0-0e92afa766b0",
-      "producto": "PUMP 3D - aumenta la vasodilatación muscular. Alpha Nutrition"
-    },
-    {
       "product_id": "0f326c6d-b989-4dfc-ab9b-e50d1545a4c7",
       "producto": "Carnivoro 4 lbs - Proteína de Carne 0 Carbos, 0 Grasas y 0 Azucar. Puro Campeon."
-    },
-    {
-      "product_id": "440c259f-e8bd-4057-baa5-94db77ea6b1c",
-      "producto": "Lean Body for Her Advanced - Anti-Hinchazón. Labrada"
     },
     {
       "product_id": "a9e216b9-1004-45c6-a988-b529fd16fdf6",
@@ -797,10 +769,6 @@
       "producto": "Proteina XT - Excelente Proteína de Liberación Prolongada. PURO CAMPEON"
     },
     {
-      "product_id": "da88d643-2207-4956-af91-f4786864b9b3",
-      "producto": "Lipo-6 Caffeine - Incrementa tu energia y alerta mental. Cafeina Pura. Nutrex."
-    },
-    {
       "product_id": "17b6e03b-6240-44a8-b285-4c24d11a0cf0",
       "producto": "Shaker Cyclo - Mezclador 3 en 1 en 4 colores. MDN Sports"
     },
@@ -823,22 +791,6 @@
     {
       "product_id": "d6e00490-90ec-4385-a85a-de920fa07501",
       "producto": "Glutamina Euphoric 1 Kg - Construye fibras musculares al máximo!"
-    },
-    {
-      "product_id": "e9624a4a-5c53-4a64-9b3d-933189ba66be",
-      "producto": "Best Aminos - Apoya la recuperación, más glutamina e hidratacion sostenida. BPI Sport"
-    },
-    {
-      "product_id": "c758bbda-5d1d-4574-ab64-7afa8182138b",
-      "producto": "Glutamine Drive 1 kg - Repara las fibras musculares y promueve el cremiento. Nutrex."
-    },
-    {
-      "product_id": "d57fee37-2d4e-4438-a6c9-7f83263301d6",
-      "producto": "Platinum L-Carnitine 1500 - Carnitina Bebible para tus Post-Entrenos. Muscle-Tech."
-    },
-    {
-      "product_id": "5049b446-9f4b-41ac-8b0a-97dc3a3c07c3",
-      "producto": "Xenadrine NextGen 60 caps - Quemador de Grasa Súper Efectivo de última generación."
     },
     {
       "product_id": "223afa0b-d2d4-4e21-be9d-c9f1251adc05",

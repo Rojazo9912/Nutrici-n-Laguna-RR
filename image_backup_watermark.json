@@ -9067,5 +9067,86 @@
   "display_order": 1,
   "is_primary": true,
   "created_at": "2026-10-08T20:38:19.952418+00:00"
+ },
+ {
+  "id": "53c74d17-0d1c-40ff-b914-bc8dc3ca3e05",
+  "product_id": "cb22cd3b-01bf-4e4f-9130-03bc6d4b5832",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/cb22cd3b-01bf-4e4f-9130-03bc6d4b5832/1.jpg",
+  "alt_text": "Elite Liquid - Proteina Liquida 25gr 12 piezas. Dymatize",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-30T20:04:15.266336+00:00"
+ },
+ {
+  "id": "ba4eb123-d0b9-4ffd-9082-20710d26d45a",
+  "product_id": "cb22cd3b-01bf-4e4f-9130-03bc6d4b5832",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/cb22cd3b-01bf-4e4f-9130-03bc6d4b5832/2.jpg",
+  "alt_text": "Elite Liquid - Proteina Liquida 25gr 12 piezas. Dymatize",
+  "display_order": 2,
+  "is_primary": false,
+  "created_at": "2026-10-30T20:04:15.266336+00:00"
+ },
+ {
+  "id": "fd93e0ee-dbed-4a61-912d-1215b03470b7",
+  "product_id": "7cee1522-f25e-48af-8863-12bd7c313f3c",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/7cee1522-f25e-48af-8863-12bd7c313f3c/1.jpg",
+  "alt_text": "Lean Body Cookie Roll - Barras de Poteina 25gr. Labrada",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-30T20:04:18.053521+00:00"
+ },
+ {
+  "id": "173a86da-94ef-4061-9cb6-e6f731fd5206",
+  "product_id": "627b62d8-3c2e-4695-b2c0-0e92afa766b0",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/627b62d8-3c2e-4695-b2c0-0e92afa766b0/1.jpg",
+  "alt_text": "PUMP 3D - aumenta la vasodilatación muscular. Alpha Nutrition",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-30T20:04:24.049089+00:00"
+ },
+ {
+  "id": "280f2363-e4da-4f32-9309-ef8588d53171",
+  "product_id": "627b62d8-3c2e-4695-b2c0-0e92afa766b0",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/627b62d8-3c2e-4695-b2c0-0e92afa766b0/2.jpg",
+  "alt_text": "PUMP 3D - aumenta la vasodilatación muscular. Alpha Nutrition",
+  "display_order": 2,
+  "is_primary": false,
+  "created_at": "2026-10-30T20:04:24.049089+00:00"
+ },
+ {
+  "id": "d2a83499-846a-4390-9015-744e702fa63b",
+  "product_id": "627b62d8-3c2e-4695-b2c0-0e92afa766b0",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/627b62d8-3c2e-4695-b2c0-0e92afa766b0/3.jpg",
+  "alt_text": "PUMP 3D - aumenta la vasodilatación muscular. Alpha Nutrition",
+  "display_order": 3,
+  "is_primary": false,
+  "created_at": "2026-10-30T20:04:24.049089+00:00"
+ },
+ {
+  "id": "5b7599a5-3fc4-4d75-8432-bcb041b29a3a",
+  "product_id": "440c259f-e8bd-4057-baa5-94db77ea6b1c",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/440c259f-e8bd-4057-baa5-94db77ea6b1c/1.jpg",
+  "alt_text": "Lean Body for Her Advanced - Anti-Hinchazón. Labrada",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-30T20:04:24.653169+00:00"
+ },
+ {
+  "id": "91506cf1-3496-4d2a-95d5-cec6efb6b8cc",
+  "product_id": "da88d643-2207-4956-af91-f4786864b9b3",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/da88d643-2207-4956-af91-f4786864b9b3/1.jpg",
+  "alt_text": "Lipo-6 Caffeine - Incrementa tu energia y alerta mental. Cafeina Pura. Nutrex.",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-30T20:04:27.322663+00:00"
+ },
+ {
+  "id": "c734a908-d0b6-4ca5-a64b-7e6abc045242",
+  "product_id": "c758bbda-5d1d-4574-ab64-7afa8182138b",
+  "image_url": "https://ehtrmfxxohodoutrvrvy.supabase.co/storage/v1/object/public/products/c758bbda-5d1d-4574-ab64-7afa8182138b/1.jpg",
+  "alt_text": "Glutamine Drive 1 kg - Repara las fibras musculares y promueve el cremiento. Nutrex.",
+  "display_order": 1,
+  "is_primary": true,
+  "created_at": "2026-10-30T20:04:29.843859+00:00"
  }
 ]

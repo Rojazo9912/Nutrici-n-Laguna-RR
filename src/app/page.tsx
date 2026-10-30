@@ -18,10 +18,13 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { Product } from '@/types/database.types';
+import { availableStock } from '@/lib/commerce';
 import { MACRO_CATEGORIES, MACRO_CATEGORY_ICONS } from '@/lib/macro-categories';
 
+const FEATURED_LIMIT = 8;
+
 export default function HomePage() {
-  const { products, categories, add } = useStore();
+  const { products, add } = useStore();
   const [notification, setNotification] = useState<string | null>(null);
 
   const handleAddToCart = (product: Product) => {
@@ -33,10 +36,23 @@ export default function HomePage() {
     setTimeout(() => setNotification(null), 3500);
   };
 
-  // Only display active and approved products on the public homepage
-  const publicProducts = products.filter(
-    p => p.commercial_status === 'activo' && p.regulatory_status === 'aprobado'
-  );
+  // Only display active and approved products on the public homepage, limited to top featured items
+  const featuredProducts = products
+    .filter(p => p.commercial_status === 'activo' && p.regulatory_status === 'aprobado')
+    .sort((a, b) => {
+      const aStock = availableStock(a.variants?.[0]) > 0 ? 1 : 0;
+      const bStock = availableStock(b.variants?.[0]) > 0 ? 1 : 0;
+      if (aStock !== bStock) return bStock - aStock;
+
+      const aHasImg = (a.images?.length ?? 0) > 0 ? 1 : 0;
+      const bHasImg = (b.images?.length ?? 0) > 0 ? 1 : 0;
+      if (aHasImg !== bHasImg) return bHasImg - aHasImg;
+
+      const aPromo = a.price_promo && a.price_promo < a.price_regular ? 1 : 0;
+      const bPromo = b.price_promo && b.price_promo < b.price_regular ? 1 : 0;
+      return bPromo - aPromo;
+    })
+    .slice(0, FEATURED_LIMIT);
 
   return (
     <div className="space-y-20 pb-20">
@@ -231,7 +247,7 @@ export default function HomePage() {
 
         <CatalogStatus />
 
-        {publicProducts.length === 0 ? (
+        {featuredProducts.length === 0 ? (
           <div className="glass-panel p-12 text-center rounded-2xl border border-zinc-800 space-y-3">
             <ShieldCheck className="w-10 h-10 text-zinc-500 mx-auto" />
             <h3 className="text-base font-bold text-white">Actualizando Catálogo</h3>
@@ -241,7 +257,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {publicProducts.map(product => (
+            {featuredProducts.map(product => (
               <ProductCard
                 key={product.id}
                 product={product}
