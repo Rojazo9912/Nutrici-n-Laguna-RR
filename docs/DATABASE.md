@@ -14,8 +14,9 @@ PostgreSQL en Supabase. El esquema es SQL estándar, con `SECURITY DEFINER` solo
 | `05_order_fulfillment.sql` | `advance_order` (pagado → preparando → enviado → entregado) |
 | `06_privacy_and_limits.sql` | `rate_limits`, `arco_requests`, `set_consent` |
 | `07_admin_operations.sql` | Inventario/lotes, variantes, marcas, categorías, cupones, contenido, tablero, favoritos |
+| `08_restricted_products.sql` | Retira productos con sustancias controladas, de receta o inyectables y bloquea que se aprueben o activen (trigger) |
 
-`npm run db:migrate` aplica de la 03 a la 07, cada una en su transacción y con checksum en `commerce_migrations`. Si una migración ya se aplicó a mano sin ese registro, el comando se detiene y pide revisión (no la reaplica).
+`npm run db:migrate` aplica de la 03 a la 08, cada una en su transacción y con checksum en `commerce_migrations`. Si una migración ya se aplicó a mano sin ese registro, el comando se detiene y pide revisión (no la reaplica).
 
 ## Reglas que dependen de la base de datos
 

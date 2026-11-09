@@ -11,6 +11,7 @@ const files = [
   'supabase/migrations/05_order_fulfillment.sql',
   'supabase/migrations/06_privacy_and_limits.sql',
   'supabase/migrations/07_admin_operations.sql',
+  'supabase/migrations/08_restricted_products.sql',
 ];
 if (!process.env.DATABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
   console.error('Falta DATABASE_URL o NEXT_PUBLIC_SUPABASE_URL en .env.local. No se aplicaron cambios.');

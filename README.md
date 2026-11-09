@@ -43,7 +43,16 @@ Aplica **una vez** `supabase/migrations/06_privacy_and_limits.sql`. Agrega tres 
 
 Aplica también **una vez** `supabase/migrations/07_admin_operations.sql` (requiere la 06): inventario y lotes, variantes, marcas, categorías, cupones, contenido del sitio, tablero de indicadores y favoritos. Habilita el panel `/admin` completo: tablero, catálogo, marcas y categorías, inventario, pedidos, cupones, contenido (avisos legales, FAQ, envíos, devoluciones y contacto), ARCO, clientes, exportación de pedidos a CSV y bitácora de auditoría. Solo el rol `admin` puede modificar; `compliance_officer` solo revisa productos y consulta.
 
-`npm run db:migrate` aplica ahora de la 03 a la 07, en orden, cada una en su transacción y con checksum. Si aplicaste alguna a mano desde el editor SQL, el comando no la reaplica pero se detiene y pide revisión: registra esa migración en `commerce_migrations` o aplica el resto manualmente. Consulta `docs/DATABASE.md`, `docs/SECURITY.md` y `docs/PROJECT_STATUS.md`.
+Aplica **una vez, cuanto antes,** `supabase/migrations/08_restricted_products.sql`. Retira del catálogo (queda `rechazado` + `oculto`, con nota en el historial regulatorio) todo producto cuyo nombre o categoría coincida con esteroides, SARMs, medicamentos de receta, hormonas, estimulantes prohibidos (efedra, DMAA, clenbuterol), tratamientos SBS/Sib Svelt o inyectables y mesoterapia, y agrega un trigger que impide aprobarlos o activarlos por cualquier vía, incluidos scripts con `service_role`. Al terminar, revisa lo retirado:
+
+```sql
+SELECT p.name, h.notes FROM product_regulatory_status h JOIN products p ON p.id = h.product_id
+WHERE h.notes LIKE 'Retiro automático (migración 08)%' ORDER BY p.name;
+```
+
+La detección es por texto y **no sustituye la revisión humana**: un nombre comercial engañoso puede no coincidir. Si un producto legítimo queda bloqueado, corrige la lista en una migración nueva; no desactives el trigger.
+
+`npm run db:migrate` aplica ahora de la 03 a la 08, en orden, cada una en su transacción y con checksum. Si aplicaste alguna a mano desde el editor SQL, el comando no la reaplica pero se detiene y pide revisión: registra esa migración en `commerce_migrations` o aplica el resto manualmente. Consulta `docs/DATABASE.md`, `docs/SECURITY.md` y `docs/PROJECT_STATUS.md`.
 
 La interfaz puede mostrar catálogo y carrito antes de aplicar la migración. Los pagos y las modificaciones administrativas permanecen deshabilitados hasta que esté aplicada. Los pedidos antiguos no se convierten automáticamente en pedidos pagables: carecen de reservas y deben conciliarse por separado.
 
@@ -65,6 +74,12 @@ Publica el texto real aprobado por el responsable del negocio en `site_content`,
 ```
 
 No se incluyen textos legales ficticios. El checkout requiere un aviso de privacidad publicado y guarda la versión aceptada y la fecha en el pedido. Cada actualización del texto debe tener una versión nueva. Las páginas muestran texto plano, sin ejecutar HTML del contenido.
+
+## Scripts y catálogo
+
+En `scripts/` solo quedan `check-setup`, `migrate`, `import-catalog` (importa un CSV como borradores pendientes de revisión, excluyendo sustancias restringidas) y `seed-initial-operations`. **No existe ningún script de aprobación masiva**: cada producto se aprueba en `/admin/productos` por una persona con rol `admin` o `compliance_officer`, y queda auditado a su nombre.
+
+Imágenes: usa fotografías propias o material entregado o autorizado por la marca o el distribuidor. No copies imágenes ni fichas de otras tiendas. Las salidas de scripts (`outputs/`, CSV y JSON en la raíz) están ignoradas por git porque contienen datos internos del catálogo.
 
 ## Mercado Pago
 

@@ -9,7 +9,8 @@
 - **RLS:** activa en todas las tablas; sin políticas de escritura para clientes. `cost_internal` no es legible por `anon` ni `authenticated`.
 - **Secretos:** solo variables de entorno; `.env.local` está ignorado por git. `SUPABASE_SERVICE_ROLE_KEY`, el token y el secreto de Mercado Pago, `RESEND_API_KEY` y `CRON_SECRET` nunca llevan prefijo `NEXT_PUBLIC_`. Las páginas y módulos que los usan importan `server-only`.
 - **Contenido:** los textos legales y de contenido se muestran como texto plano; los correos escapan todos los datos; el JSON-LD escapa `<`; el CSV neutraliza fórmulas.
-- **Sustancias excluidas:** restricción `CHECK` en `categories` y validación en `upsert_category` (normaliza guiones). Un producto no puede estar `activo` sin aprobación regulatoria (restricción `CHECK`).
+- **Sustancias excluidas:** restricción `CHECK` en `categories` y validación en `upsert_category` (normaliza guiones). Un producto no puede estar `activo` sin aprobación regulatoria (restricción `CHECK`). Desde la migración 08, un trigger impide que un producto cuyo nombre o categoría coincida con sustancias controladas, medicamentos de receta o inyectables quede `aprobado` o `activo`, aunque la escritura venga de `service_role`. La lista está en `public.restricted_product_term`; es una red de seguridad, no reemplaza la revisión humana.
+- **Operación con `service_role`:** los scripts con esa clave ignoran RLS. No se admiten scripts que cambien estados regulatorios en masa; las aprobaciones pasan por `review_product` con un actor real.
 
 ## Limitación de tasa
 

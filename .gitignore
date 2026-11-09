@@ -33,3 +33,10 @@ next-env.d.ts
 # OS files
 .DS_Store
 Thumbs.db
+
+# salidas de scripts y exportaciones de datos (no versionar: contienen datos internos del catálogo)
+/outputs/
+/*.csv
+/*.xlsx
+/*.json.bak
+image_backup*.json

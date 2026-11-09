@@ -1,4 +1,17 @@
-# Estado del proyecto — 21 de septiembre de 2026
+# Estado del proyecto
+
+## Actualización — 9 de noviembre de 2026
+
+**Incidente regulatorio.** Una consulta del 30 de octubre mostró productos aprobados y activos que no pueden venderse como suplementos: testosterona, fluoximesterona, tamoxifeno, clomifeno, anastrozol, procaína y otros inyectables y productos de mesoterapia. Se aprobaron con un script de aprobación masiva (`approve-all-pending.mjs`) que escribía directo en la tabla, sin revisión, y registraba una auditoría a nombre del primer administrador. La restricción de la base solo revisaba nombres de categoría.
+
+Corrección en el repositorio:
+- Migración `08_restricted_products.sql`: retira los productos coincidentes y bloquea su aprobación o activación por cualquier vía. **Debe aplicarse en Supabase**; hasta entonces el problema sigue en producción.
+- Se eliminaron los scripts de aprobación masiva, los de extracción de imágenes de otras tiendas y los scripts de prueba de un solo uso, junto con sus salidas (`outputs/`, CSV y JSON con datos del catálogo). Siguen en el historial de git.
+- Pruebas nuevas del bloqueo (35 en total).
+
+Pendiente del responsable: aplicar la 08, revisar la lista retirada, revisar a mano los productos aprobados por el script (la detección por texto no es exhaustiva), y reemplazar las imágenes tomadas de otras tiendas por material propio o autorizado.
+
+## Estado al 21 de septiembre de 2026
 
 Verificado localmente: `npm run typecheck`, `npm test` (33 pruebas sobre PostgreSQL en memoria) y `npm run build`. **Nada de esto se ha ejecutado contra el Supabase remoto ni contra Mercado Pago**: el proyecto configurado no resuelve DNS desde este entorno (ver `docs/verification.md`).
 

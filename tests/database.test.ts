@@ -29,6 +29,7 @@ before(async () => {
   await db.exec(await readFile('supabase/migrations/05_order_fulfillment.sql','utf8'));
   await db.exec(await readFile('supabase/migrations/06_privacy_and_limits.sql','utf8'));
   await db.exec(await readFile('supabase/migrations/07_admin_operations.sql','utf8'));
+  await db.exec(await readFile('supabase/migrations/08_restricted_products.sql','utf8'));
   await db.exec(`UPDATE public.inventory_lots SET expiration_date = CURRENT_DATE + 365;
     INSERT INTO auth.users(id,email) VALUES('${user}','one@example.com'),('${other}','two@example.com');
     INSERT INTO public.site_content(key,content) VALUES('privacidad','{"version":"test-v1","body":"Aviso de prueba local"}');
@@ -118,6 +119,33 @@ test('an admin review persists product state and audit in one transaction', asyn
   await db.query(`SELECT public.review_product($1,$2,'rechazado','Documento incompleto')`,[product,user]);
   assert.equal((await db.query<{ status: string }>('SELECT commercial_status status FROM public.products WHERE id=$1',[product])).rows[0].status,'borrador');
   assert.equal((await db.query('SELECT id FROM public.admin_audit_logs')).rows.length,1);
+});
+test('controlled, prescription and injectable products cannot be approved or activated by any path', async () => {
+  await db.query(`UPDATE public.profiles SET role='admin' WHERE id=$1`,[user]);
+  for (const name of ['TEST 350 Combinación de Testosteronas','Nolvedext Tamoxifeno 20 mg','HalopleX Fluoxymesterone','Procaína 10 ampolletas inyectables','Rosa Mosqueta 10 amp de 1ml','Clenbutrex 60 tabs','Ácido Hialurónico - 1 Vial de 10ml','Sib Svelt Tratamiento Reductivo','Lipodrene Hardcore 90 tabs']) {
+    await db.query(`UPDATE public.products SET name=$2,commercial_status='borrador',regulatory_status='pendiente' WHERE id=$1`,[product,name]);
+    await db.exec('SAVEPOINT s');
+    await assert.rejects(db.query(`SELECT public.review_product($1,$2,'aprobado','Revisión de prueba')`,[product,user]),/RESTRICTED_PRODUCT/,name);
+    await db.exec('ROLLBACK TO SAVEPOINT s');
+    await assert.rejects(db.query(`UPDATE public.products SET regulatory_status='aprobado',commercial_status='activo' WHERE id=$1`,[product]),/RESTRICTED_PRODUCT/,name);
+    await db.exec('ROLLBACK TO SAVEPOINT s');
+  }
+  // Rejecting or hiding a restricted product stays possible.
+  await db.query(`SELECT public.review_product($1,$2,'rechazado','Sustancia controlada')`,[product,user]);
+  // Ordinary supplements are not affected.
+  for (const name of ['Gold Standard 100% Whey 5lb','Creatina monohidratada 500 g','Testrol Elite','Amino Build Next Gen','Colágeno hidrolizado con péptidos','Champ BCAA']) {
+    assert.equal((await db.query<{ t: string | null }>('SELECT public.restricted_product_term($1) t',[name])).rows[0].t,null,name);
+  }
+});
+test('migration 08 withdraws restricted products that were already published', async () => {
+  const sql = await readFile('supabase/migrations/08_restricted_products.sql','utf8');
+  await db.query(`ALTER TABLE public.products DISABLE TRIGGER products_block_restricted`);
+  await db.query(`UPDATE public.products SET name='Arimidex 1 mg',regulatory_status='aprobado',commercial_status='activo' WHERE id=$1`,[product]);
+  await db.query(`ALTER TABLE public.products ENABLE TRIGGER products_block_restricted`);
+  await db.exec(sql.replace(/^BEGIN;$/m,'').replace(/^COMMIT;$/m,''));
+  const row = (await db.query<{ r: string; c: string }>('SELECT regulatory_status r,commercial_status c FROM public.products WHERE id=$1',[product])).rows[0];
+  assert.deepEqual(row,{ r:'rechazado',c:'oculto' });
+  assert.match((await db.query<{ notes: string }>('SELECT notes FROM public.product_regulatory_status WHERE product_id=$1',[product])).rows[0].notes,/arimidex/);
 });
 test('ordinary clients cannot review products', async () => {
   await assert.rejects(db.query(`SELECT public.review_product($1,$2,'aprobado','Falsa revisión')`,[product,other]),/FORBIDDEN/);
