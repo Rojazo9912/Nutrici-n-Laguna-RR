@@ -81,6 +81,14 @@ En `scripts/` solo quedan `check-setup`, `migrate`, `import-catalog` (importa un
 
 Imágenes: usa fotografías propias o material entregado o autorizado por la marca o el distribuidor. No copies imágenes ni fichas de otras tiendas. Las salidas de scripts (`outputs/`, CSV y JSON en la raíz) están ignoradas por git porque contienen datos internos del catálogo.
 
+## Catálogo de WhatsApp
+
+En `/admin/productos`, **Catálogo WhatsApp (CSV)** descarga un archivo con el formato de Meta Commerce Manager (una fila por variante; `id` = SKU). Súbelo en Commerce Manager → tu catálogo → Orígenes de datos → Subir archivo, y conecta ese catálogo a tu cuenta de WhatsApp Business. **Excluidos de WhatsApp** descarga lo que quedó fuera y por qué.
+
+Solo entran productos aprobados y activos, con marca, con imagen alojada en el almacenamiento de la tienda (no enlaces a otros sitios) y fuera de las categorías de riesgo para Meta definidas en `src/lib/whatsapp-catalog.ts` (control de peso y reductivos, desempeño sexual, suplementos que Meta considera inseguros). Esa lista es conservadora a propósito: un catálogo rechazado o una cuenta bloqueada son difíciles de recuperar. La exportación se niega si falta la migración 08 o `APP_URL`, y queda en la bitácora.
+
+Las descripciones salen de `description_short`: revisa que no prometan resultados de salud ni de peso antes de subir el archivo.
+
 ## Mercado Pago
 
 Configura `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `APP_URL` (origen HTTPS público) y `MERCADOPAGO_MODE=test`. Reinicia la aplicación al cambiar variables. Las variables antiguas `MERCADO_PAGO_*` no se usan.
